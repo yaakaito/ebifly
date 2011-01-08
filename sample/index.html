@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ebifly sample</title>
+  </head>
+  <body>
+    <article>
+      <input type="button" value="ログを送信します。" onclick="ebifly.log('ログが送信されました。')" />
+      <div id="#test">
+        <p>
+          この領域にはIDとして#testが付いています。<br />
+          例えば以下のようなスクリプトをコンソールから実装して、表示内容を得ることができます。
+        </p>
+        <pre>
+          document.getElementById("test").innerHTML;
+        </pre>
+      </div>
+    </article>
+  </body>
+  <script src="/socket.io.js"></script>
+  <script src="/ebifly.js"></script>
+</html>

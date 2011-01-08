@@ -1,0 +1,14 @@
+*node.js
+
+ git clone https://github.com/ry/node.git
+ cd node
+ ./configure 
+ make
+ make install
+
+*npm
+ sudo chown -R $USER /usr/local
+ curl http://npmjs.org/install.sh | sh
+
+*socket.io
+ npm install socket.io

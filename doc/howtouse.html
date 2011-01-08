@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ebifly</title>
+  </head>
+  <body>
+    <header>
+      <hgroup>
+        <h1>ebifly</h1>
+        <h3>iPhoneWeb Debugger</h3>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="./">About</a></li>
+        <li><a href="./howtouse.html">HowToUse</a></li>
+        <li><a href="./developper.html">Developper</a></li>
+      </ul>
+    </nav>
+    <article>
+      <section>
+        <h2>How to use</h2>
+        <p>
+          ebiflyは独自のサーバアプリケーションを起動し、それにクライアントとコンソールが接続する形で動作します。<br />
+          軽いスクリプトなので、専用のサーバなどを用意する必要はなく、実際に開発を行っているPCで実行するのがおすすめです。<br />
+          あまり想定はしていませんが、デフォルトでは8080番ポートを使用しますので、外部からアクセスする場合には解放が必要です。<br />
+        </p>
+        <p>
+          またebiflyはNode.jsとsocket.ioを利用しているので、Node.jsとsocket.ioが必要です。<br />
+          動作させる環境にNode.js、またはsocket.ioがインストールされていない場合は、
+          下の方に書いてある手順を参考にインストールを行ってください。
+        </p>
+      </section>
+      <section>
+        <h3>サーバの起動</h3>
+        <p>
+          サーバアプリケーションは /server/ebiserver.js です。<br />
+          これをNode.jsのアプリケーションとして起動して、サーバの起動は終了です
+        </p>
+        <pre>cd server
+node ebiserver.js</pre>
+      </section>
+      <section>
+        <h3>クライアントの接続</h3>
+        <p>
+          クライアントで、デバッグ対象となるページで以下の様に必要なスクリプトを読み込みます。
+        </p>
+        <pre>&lt;script src="./socket.io.js">&lt;/script>
+&lt;script src="./ebifly.js">&lt;/script></pre>
+        <p>
+          socket.io.jsは /socket.io 以下に含まれているファイルを使用するか、
+          socket.ioインストール時に追加されたファイルを使用してください。<br />
+          準備が整ったら、次のスクリプトのlocalhostをサーバアプリケーションが起動しているPCのIPアドレスやホスト名に置き換えて、
+          サーバに接続します。
+          ポート番号を変更をした場合は、ポート番号の書き換えも行ってください。
+        </p>
+        <pre>ebifly.connect( { host : "localhost", port : 8080});</pre>
+      </section>
+
+      <section>
+        <h3>コンソールへのアクセス</h3>
+        <p>
+           サーバとコンソールを操作するPCが同じ場合、以下にアクセスします。<br />
+           サーバを別の場所で起動している場合は、localhostをサーバのIPアドレスやホスト名に置き換えてください<br />
+        </p>
+        <pre>http://localhost:8080/console</pre>
+      </section>
+      <section>
+        <h3>Node.js / socket.io</h3>
+        <p>
+          まだかいてないよーごめんねー
+        </p>
+      </section> 
+    </article>
+    <footer>
+      <p class="copyright">
+        <a href="http://www.yaakaito.org/">yaakaito.org</a>
+      </p>
+    </footer>
+  </body>
+</html>

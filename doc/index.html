@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ebifly</title>
+  </head>
+  <body>
+    <header>
+      <hgroup>
+        <h1>ebifly</h1>
+        <h3>iPhoneWeb Debugger</h3>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="./">About</a></li>
+        <li><a href="./howtouse.html">HowToUse</a></li>
+        <li><a href="./developper.html">Developper</a></li>
+      </ul>
+    </nav>
+    <article>
+      <section>
+        <h2>About</h2>
+        <p>
+          ebiflyはiPhoneでのWeb開発、特にデフォルトのデバッグ機能を利用することができない
+          UIWebViewを用いた開発をサポートすることをコンセプトに作られたJavaScript?デバッグツールです。<br />
+          alert('hoge')というようなコードを書いてオブジェクトの内容を確認したり、
+          デバッグ専用コードをJavaScript内に埋め込む必要がないよう、
+          別のブラウザを母艦としてログの送信、JavaScriptの実行を行います。 <br />
+          ebiflyは専用のサーバアプリケーションをローカル環境などで実行することで、 デバッグを開始することができます。
+        </p>
+      </section>
+      <section>
+        <h3>Logger</h3>
+        <p>
+          以下のような簡単なコマンドでクライアントからコンソールへログを送信することができます。
+        </p>
+      </section>
+      <section>
+        <h3>Script</h3>
+        <p>
+          コンソールから送信されたスクリプトはiPhone上で実行され、その結果をコンソールに返します。
+        </p>
+      </section>
+      <section>
+        <h3>Node.js + WebSocket</h3>
+        <p>
+          ebiflyはnode.js、およびsocket.ioを利用して通信を行うので、こちらのインストールが別途必要となります。
+          socket.ioによって利用可能なブラウザではWebSocketを使用し、さらにサーバサイドをJavaScriptで実装しているため、
+          JavaScriptのみですべてのスクリプトを変更することができます。
+        </p>
+      </section>
+      <section>
+        <h3>Extension</h3>
+        <p>
+          ebiflyはMITライセンスです。 本体は最小限の機能しか提供せず、独自にカスタマイズし易いような設計をめざしています。
+        </p>
+      </section>
+    </article>
+    <footer>
+      <p class="copyright">
+        <a href="http://www.yaakaito.org/">yaakaito.org</a>
+      </p>
+    </footer>
+  </body>
+</html>
