@@ -51,12 +51,25 @@ server = http.createServer(function(req, res){
               console.log(err);
               return send404( res);
           }
-          console.log("succ");
           res.writeHead( 200, {"Content-type": "text/javascript"});
           res.write(data, "utf-8");
           res.end();
       });
       break;
+  case "/arrow_right.png":
+  case "/arrow_bottom.png":
+      console.log( path);
+      fs.readFile(__dirname + "/web/image" + path, function( err, data){
+          if( err){
+              console.log(err);
+              return send404( res);
+          }
+          res.writeHead( 200, {"Content-type": "image/png"});
+          res.write(data, "utf-8");
+          res.end();
+      });
+      break;
+      
   case "/chat.html":
       fs.readFile(__dirname + "/../client/" + path, function( err, data){
           if( err){

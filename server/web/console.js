@@ -3,20 +3,13 @@ var ebiconsole = {
     event : {
         
     },
-
     socket : null,
-
     message : {
 
         last : 0
     },
-
     last : 0,
-    
-    ui : {
-    
-        logTable : document.getElementById( "logtable")
-    }
+    htmlModelObj : null
 };
 
 ebiconsole.connect = function( options){
@@ -49,13 +42,65 @@ ebiconsole.connect = function( options){
 
     // Add Events
     $("runscript").addEventListener("click", function(){ebiconsole.runScript()});
-    $("clearlogs").addEventListener("click", function(){ebiconsole.ui.clearLog()});
+    $("clearlogs").addEventListener("click", function(){ebiconsole.clearLog()});
 
     $("script").addEventListener("keyup", function( e){
         if( e.keyCode === 13 && $("checkReturnScript").checked){
             ebiconsole.runScript();
         }
     });
+
+    // HTML initialize
+    var parent = document.querySelector("article#html > details > summary").parentNode;
+    document.querySelector("article#html > details > summary").addEventListener( "click", function( parent){
+        return function(){
+            if( parent.getAttribute("open") === null){
+                parent.setAttribute("open", "open");
+                if( parent.getAttribute("loaded") === null){
+                    ebiconsole.openHTMLTag( parent, ebiconsole.htmlModelObj.childNodes);
+                    parent.setAttribute("loaded", "loaded");
+                }
+            }else{
+                parent.removeAttribute("open");
+            }
+        }
+    }( parent), false);
+
+
+    this.htmlModelObj= document.querySelector("html");
+};
+
+ebiconsole.openHTMLTag = function( targetDetails, newNodes){
+
+    var details, summary, text,  i = 0, len = newNodes.length;
+    for(; i < len; i++){
+        if( newNodes[i] !== null && newNodes[i] !== undefined){
+            details = document.createElement("details");
+            summary = document.createElement("summary");
+            if( newNodes[i] instanceof HTMLElement){
+                summary.appendChild( document.createTextNode( "<" + newNodes[i].tagName.toLowerCase() + ">"));
+                details.setAttribute( "tag", "tag");
+                summary.addEventListener("click",function( details, children){
+                    return function(){
+                        if( details.getAttribute("open") === null){
+                            details.setAttribute("open", "open");
+                            if( details.getAttribute("loaded") === null){
+                                ebiconsole.openHTMLTag( details, children);
+                                details.setAttribute("loaded", "loaded");
+                            }
+                        }else{
+                            details.removeAttribute("open");
+                        }
+                    };
+                }( details, newNodes[i].childNodes));
+            }else{
+                summary.appendChild( document.createTextNode( newNodes[i].nodeValue));
+            }
+            details.appendChild( summary);
+            targetDetails.appendChild( details);
+        }
+    }
+    
 };
 
 /* 
@@ -65,7 +110,7 @@ ebiconsole.runScript = function(){
 
     var script = this.message.createScript( $("script").value.replace(/^(.*?)\n*$/, "$1"));
     this.socket.send( script);
-    this.ui.insertScript( script);
+    this.insertScript( script);
     if( $("checkClearScript").checked){
         $("script").value = "";
     }
@@ -73,7 +118,7 @@ ebiconsole.runScript = function(){
 }
 
 /* 
-   cosole events
+   console events
 */
 ebiconsole.event.message = function( data){
 
@@ -86,15 +131,22 @@ ebiconsole.event.message = function( data){
     
     if( data.type == "LOG"){
         // insert log
-        ebiconsole.ui.insertLog( data);
+        ebiconsole.insertLog( data);
     }else if( data.type == "RES"){
         // insert result
-        ebiconsole.ui.insertResult( data);
+        ebiconsole.insertResult( data);
     }else if( data.type == "EXP"){
         // insert exception
-        ebiconsole.ui.insertException( data);
+        ebiconsole.insertException( data);
     }
 };
+
+ebiconsole.event.clickHTMLDetails = function( e){
+
+    var parent = e.parentNode;
+    alert( e.parentNode);
+    alert( parent.getAttribute("open"));
+}
 /*
   ebiconsole message format
 */
@@ -139,41 +191,41 @@ ebiconsole.message.createTimeString = function( date){
 }
 
 /*
-  ebiconsole UI controllers
+  ebiconsole controllers
 */
-ebiconsole.ui.insertLog = function( log){
+ebiconsole.insertLog = function( log){
 
-    var console = $("console");
+    var console = $("message");
     console.innerHTML += this.createLogTimesString( log) + " " + log.msg + "\n";
     console.scrollTop = 1000000000;
     
 };
 
-ebiconsole.ui.insertScript = function( log){
+ebiconsole.insertScript = function( log){
 
-    var console = $("console");
+    var console = $("message");
     console.innerHTML += "<span class='script'>>> " + log.msg + "</span>\n";
     console.scrollTop = 1000000000;
     
 };
 
-ebiconsole.ui.insertResult = function( log){
+ebiconsole.insertResult = function( log){
 
-    var console = $("console");
+    var console = $("message");
     console.innerHTML += "<span class='result'>>> " + log.msg + "</span>\n";
     console.scrollTop = 1000000000;
     
 };
 
-ebiconsole.ui.insertException = function( log){
+ebiconsole.insertException = function( log){
 
-    var console = $("console");
+    var console = $("message");
     console.innerHTML += "<span class='exception'>>> "  + log.msg + "<span>\n";
     console.scrollTop = 1000000000;
     
 };
 
-ebiconsole.ui.createLogTimesString = function( data){
+ebiconsole.createLogTimesString = function( data){
 
     var tlist = ["ct"], target, i = 0, len, results = [];
     for( len = tlist.length; i < len; i++){
@@ -182,7 +234,7 @@ ebiconsole.ui.createLogTimesString = function( data){
     return "[" + results.join("|") + "]";
 }
 
-ebiconsole.ui.clearLog = function(){
+ebiconsole.clearLog = function(){
 
     $("console").innerHTML = "";
 }

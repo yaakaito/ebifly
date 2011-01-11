@@ -26,7 +26,7 @@ section > h2 {
 
     display: none;
 }
-pre#console {
+pre#message {
 
     margin: 0 auto;
     width: 100%;
@@ -138,4 +138,37 @@ table > tbody {
     width: 996px;
     height: 420px;
     border-collapse: collapse;
+}
+
+details {
+
+    display: block;
+    margin: 1px 10px;
+    padding-left: 12px;
+}
+
+details[tag] {
+    background: url("/arrow_right.png") no-repeat;
+}
+
+details[open=open] {
+
+    background: url("/arrow_bottom.png") no-repeat;
+}
+
+details > p {
+
+    margin: 1px 10px;
+}
+
+details > details,
+details > p{
+    
+    display: none;
+}
+
+details[open=open] > details,
+details[open=open] > p{
+
+    display: block;
 }

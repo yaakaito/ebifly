@@ -9,10 +9,10 @@
     <header>
       <h1>ebifly console</h1>
     </header>
-    <article>
+    <article id="console">
       <section>
         <h2>Console</h2>
-        <pre id="console"></pre>
+        <pre id="message"></pre>
         <textarea id="script"></textarea>
         <input type="button" value="run script" id="runscript"/>
         <input type="button" value="clearlogs" id="clearlogs"/>
@@ -35,7 +35,11 @@
         </ul>
       </section>
     </article>
-
+    <article id="html">
+      <details tag=tag >
+        <summary>&lt;html></summary>
+      </details>
+    </article>
   </body>
   <script src="/socket.io.js"></script>
   <script src="/console.js"></script>
