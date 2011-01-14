@@ -72,27 +72,37 @@ ebiconsole.connect = function( options){
 
 ebiconsole.openHTMLTag = function( targetDetails, newNodes){
 
-    var details, summary, text,  i = 0, len = newNodes.length;
+    var details, summary, text,  i = 0, len = newNodes.length, tagString, j, attrLen;
     for(; i < len; i++){
         if( newNodes[i] !== null && newNodes[i] !== undefined){
             details = document.createElement("details");
             summary = document.createElement("summary");
             if( newNodes[i] instanceof HTMLElement){
-                summary.appendChild( document.createTextNode( "<" + newNodes[i].tagName.toLowerCase() + ">"));
+                tagString = "&lt;" + newNodes[i].tagName.toLowerCase();
+                for(j = 0, attrLen = newNodes[i].attributes.length; j < attrLen; j++){
+                    console.log( newNodes[i].attributes[j]);
+                    tagString += " <span class=\"name\">" + newNodes[i].attributes[j].name + "</span>=<span class=\"value\">\"" + newNodes[i].attributes[j].value + "\"</span>";
+                }
+                tagString += ">";
+                summary.innerHTML = tagString;
                 details.setAttribute( "tag", "tag");
-                summary.addEventListener("click",function( details, children){
-                    return function(){
-                        if( details.getAttribute("open") === null){
-                            details.setAttribute("open", "open");
-                            if( details.getAttribute("loaded") === null){
-                                ebiconsole.openHTMLTag( details, children);
-                                details.setAttribute("loaded", "loaded");
+                if( newNodes[i].childNodes.length > 0){
+                    summary.addEventListener("click",function( details, children){
+                        return function(){
+                            if( details.getAttribute("open") === null){
+                                details.setAttribute("open", "open");
+                                if( details.getAttribute("loaded") === null){
+                                    ebiconsole.openHTMLTag( details, children);
+                                    details.setAttribute("loaded", "loaded");
+                                }
+                            }else{
+                                details.removeAttribute("open");
                             }
-                        }else{
-                            details.removeAttribute("open");
-                        }
-                    };
-                }( details, newNodes[i].childNodes));
+                        };
+                    }( details, newNodes[i].childNodes));
+                }else{
+                    details.setAttribute("last", "last");
+                }
             }else{
                 summary.appendChild( document.createTextNode( newNodes[i].nodeValue));
             }

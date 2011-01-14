@@ -145,6 +145,8 @@ details {
     display: block;
     margin: 1px 10px;
     padding-left: 12px;
+    font-family: monospace;
+    font-size: 14px;
 }
 
 details[tag] {
@@ -156,6 +158,25 @@ details[open=open] {
     background: url("/arrow_bottom.png") no-repeat;
 }
 
+details[last=last] {
+
+   background: none no-repeat;
+}
+
+details > summary {
+
+    color: #881280;
+}
+
+details > summary > span.name {
+
+    color: #e6a241;
+}
+
+details > summary > span.value {
+
+    color: #1a34ca;
+}
 details > p {
 
     margin: 1px 10px;
