@@ -50,14 +50,17 @@ ebiconsole.connect = function( options){
         }
     });
 
+    // Request HTML
+    this.socket.send( this.message.createRequestHTML());
+    
     // HTML initialize
-    var parent = document.querySelector("article#html > details > summary").parentNode;
-    document.querySelector("article#html > details > summary").addEventListener( "click", function( parent){
+    var parent = document.querySelector("article#html > section > details > summary").parentNode;
+    document.querySelector("article#html > section > details > summary").addEventListener( "click", function( parent){
         return function(){
             if( parent.getAttribute("open") === null){
                 parent.setAttribute("open", "open");
                 if( parent.getAttribute("loaded") === null){
-                    ebiconsole.openHTMLTag( parent, ebiconsole.htmlModelObj.childNodes);
+                    ebiconsole.openHTMLTag( parent, "0");
                     parent.setAttribute("loaded", "loaded");
                 }
             }else{
@@ -66,52 +69,77 @@ ebiconsole.connect = function( options){
         }
     }( parent), false);
 
-
-    this.htmlModelObj= document.querySelector("html");
 };
 
-ebiconsole.openHTMLTag = function( targetDetails, newNodes){
+ebiconsole.openHTMLTag = function( targetDetails, nowpath){
 
-    var details, summary, text,  i = 0, len = newNodes.length, tagString, j, attrLen;
+    var details, summary, text, children = this.selectNode(nowpath).children,
+        i = 0, len = children.length,
+       tagString, j, attrLen, path;
     for(; i < len; i++){
-        if( newNodes[i] !== null && newNodes[i] !== undefined){
+        path = nowpath + "," + i;
+        if( children[i] !== null && children[i] !== undefined){
             details = document.createElement("details");
             summary = document.createElement("summary");
-            if( newNodes[i] instanceof HTMLElement){
-                tagString = "&lt;" + newNodes[i].tagName.toLowerCase();
-                for(j = 0, attrLen = newNodes[i].attributes.length; j < attrLen; j++){
-                    console.log( newNodes[i].attributes[j]);
-                    tagString += " <span class=\"name\">" + newNodes[i].attributes[j].name + "</span>=<span class=\"value\">\"" + newNodes[i].attributes[j].value + "\"</span>";
+            if( children[i].tag !== "TextNode"){
+                tagString = "&lt;" + children[i].tag;
+                for(j = 0, attrLen = children[i].attributes.length; j < attrLen; j++){
+                    tagString += " <span class=\"name\">" + children[i].attributes[j].name + "</span>=<span class=\"value\">\"" + children[i].attributes[j].value + "\"</span>";
                 }
                 tagString += ">";
                 summary.innerHTML = tagString;
                 details.setAttribute( "tag", "tag");
-                if( newNodes[i].childNodes.length > 0){
-                    summary.addEventListener("click",function( details, children){
+                if( children[i].children.length > 0){
+                    summary.addEventListener("click",function( details, nowpath){
                         return function(){
+                            var smry = details.childNodes[0];
+                            details.innerHTML = "";
+                            details.appendChild(smry);
                             if( details.getAttribute("open") === null){
                                 details.setAttribute("open", "open");
                                 if( details.getAttribute("loaded") === null){
-                                    ebiconsole.openHTMLTag( details, children);
-                                    details.setAttribute("loaded", "loaded");
+                                    ebiconsole.openHTMLTag( details, nowpath);
                                 }
                             }else{
                                 details.removeAttribute("open");
                             }
                         };
-                    }( details, newNodes[i].childNodes));
+                    }( details, path));
                 }else{
                     details.setAttribute("last", "last");
                 }
             }else{
-                summary.appendChild( document.createTextNode( newNodes[i].nodeValue));
+                summary.appendChild( document.createTextNode( children[i].value));
             }
             details.appendChild( summary);
             targetDetails.appendChild( details);
         }
+    }    
+};
+
+ebiconsole.updateHTMLTag = function(){
+
+    
+}
+
+ebiconsole.selectNode = function( path){
+    
+    var ary = path.split(","), i=1, len = ary.length, now = this.htmlModelObj, n;
+    if(len==1){
+        return this.htmlModelObj;
     }
     
+    for(;i<len;i++){
+        n = ary[i];
+        if( now.children.length > n){
+            now = now.children[n];
+        }else{
+            return null;
+        }
+    }
+    return now;
 };
+
 
 /* 
    console runScript
@@ -148,14 +176,18 @@ ebiconsole.event.message = function( data){
     }else if( data.type == "EXP"){
         // insert exception
         ebiconsole.insertException( data);
+    }else if( data.type == "HTM"){
+        ebiconsole.updateHTML( data);
     }
 };
 
 ebiconsole.event.clickHTMLDetails = function( e){
 
     var parent = e.parentNode;
+    /*
     alert( e.parentNode);
     alert( parent.getAttribute("open"));
+    */
 }
 /*
   ebiconsole message format
@@ -172,6 +204,12 @@ ebiconsole.message.createScript = function( script){
     var base = this.createBase();
     base.type = "SCR";
     base.msg = script;
+    return base;
+}
+
+ebiconsole.message.createRequestHTML = function(){
+    var base = this.createBase();
+    base.type = "RHT";
     return base;
 }
 
@@ -246,7 +284,12 @@ ebiconsole.createLogTimesString = function( data){
 
 ebiconsole.clearLog = function(){
 
-    $("console").innerHTML = "";
+    $("script").innerHTML = "";
+}
+
+ebiconsole.updateHTML = function( data){
+
+    this.htmlModelObj = data.msg;
 }
 
 var $ = function( id){

@@ -8,6 +8,12 @@
   <body>
     <header>
       <h1>ebifly console</h1>
+      <nav>
+        <ul>
+          <il><a href="#console">Console</a></il>
+          <il><a href="#html">HTML</a></il>
+        </ul>
+      </nav>
     </header>
     <article id="console">
       <section>
@@ -36,11 +42,20 @@
       </section>
     </article>
     <article id="html">
-      <details tag=tag >
-        <summary>&lt;html></summary>
-      </details>
+      <section>
+        <details tag=tag >
+          <summary>&lt;html></summary>
+        </details>
+      </section>
     </article>
   </body>
   <script src="/socket.io.js"></script>
   <script src="/console.js"></script>
+  <script>
+    (function(){
+      if( location.hash === ""){
+        location.hash = "#console";
+      }
+    })();
+  </script>
 </html>

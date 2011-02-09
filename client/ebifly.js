@@ -25,7 +25,7 @@ ebifly.connect = function( options){
                                  {
                                      port : (options.port || 8080),
                                      rememberTransport : false
-                                 });1
+                                 });
 
     // Connect Socket.io
     this.socket.connect();
@@ -40,6 +40,11 @@ ebifly.connect = function( options){
     this.socket.on( "disconnect", function( evt){
      //   ebifly.event.disconnect( evt);
     });
+
+    // HTML send
+    setInterval( function(){
+        ebifly.sendHTML();
+    }, 100);
 
 };
 
@@ -59,6 +64,17 @@ ebifly.result = function( val){
     this.socket.send( log);
 };
 
+ebifly.sendHTML = function(){
+    var html = this.message.createHTML( 
+            this.message.elementToJSON( document.querySelector("html"))
+        );
+    if( arguments.length == 1 && arguments[0] == true){
+        html.broadcast = true;
+    }
+
+    this.socket.send( html);
+
+}
 /* 
    cosole events
 */
@@ -74,6 +90,8 @@ ebifly.event.message = function( data){
     if( data.type == "SCR"){
         // insert log
         ebifly.executeScript( data);
+    }else if( data.type == "RHT"){
+        ebifly.sendHTML( true);
     }
 };
 
@@ -107,6 +125,14 @@ ebifly.message.createException = function( val){
     return base;
 };
 
+ebifly.message.createHTML = function( val){
+
+    var base = this.createBase();
+    base.type = "HTM";
+    base.msg = val;
+    return base;
+}
+
 ebifly.message.createResult = function( val){
     var base = this.createBase();
     base.type = "RES";
@@ -139,6 +165,40 @@ ebifly.message.createTimeString = function( date){
     if( msec < 100){ msec = "0" + msec; }
     
     return hour + ":" + min + ":" + sec + "." + msec;
+};
+
+ebifly.message.elementToJSON = function( elem){
+    
+    if( elem.tagName == null || elem.tagName === undefined){
+        console.log( elem.innerHTML);
+        return {
+            tag : "TextNode",
+            value : elem.nodeValue,
+            str : "TextNode" + elem.innerHTML
+        };
+
+    }
+    var obj = {
+        tag : elem.tagName.toLowerCase(),
+        attributes : [],
+        children : [],
+        str : elem.tagName.toLowerCase()
+    }, i=0, j=0, len,
+    attr = function( name, value){
+        return { name: name, value: value};
+    };
+    obj.str += elem.attributes.length;
+    for( len = elem.attributes.length; i < len; i++){
+        obj.attributes.push( attr( elem.attributes[i].name, elem.attributes[i].value));
+        obj.str = obj.str + elem.attributes[i].name + elem.attributes[i].value;
+    }
+
+    for( len = elem.childNodes.length; j < len; j++){
+        obj.children.push( this.elementToJSON( elem.childNodes[j]));
+    }
+    obj.str += len;
+
+    return obj;
 };
 
 (function(){

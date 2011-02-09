@@ -6,15 +6,17 @@
 header {
 
     width: 100%;
-    height: 20px;
-    background-color: #555;
 }
 
 header > h1 {
-    
+
+    width: 100%;
+    height: 20px;
+    background-color: #555;    
     color: #fff;
     font-size: 16px;
     text-indent: 10px;
+
 }
 
 section {
@@ -26,6 +28,21 @@ section > h2 {
 
     display: none;
 }
+
+article {
+    display: none;
+}
+
+article#console:target {
+
+    display: block;
+}
+
+article#html:target {
+
+    display: block;
+}
+
 pre#message {
 
     margin: 0 auto;

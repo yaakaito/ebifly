@@ -1,22 +1,13 @@
 var http = require("http"), url = require("url"),
     fs = require('fs'), io = require('socket.io'),
-    sys = require(process.binding('natives').util ? 'util' : 'sys'), server;
-    
+    sys = require(process.binding('natives').util ? 'util' : 'sys'), server,
+    send404, equalHTMLJSONs;
+
 server = http.createServer(function(req, res){
 
   var path = url.parse(req.url).pathname;
   switch (path){
   case "/":
-      fs.readFile(__dirname + "/web/index.html", function( err, data){
-          if( err){
-              return send404( res);
-          }
-          res.writeHead( 200, {"Content-type": "text/html"});
-          res.write(data, "utf-8");
-          res.end();
-      });
-      break;
-      
   case "/console":
       fs.readFile(__dirname + "/web/console.html", function( err, data){
           if( err){
@@ -105,12 +96,30 @@ send404 = function(res){
   res.end();
 };
 
+equalHTMLJSONs = function( before, after){
+
+    if( before == null || after == null){ return false; }
+    if( before.str !== after.str){
+        return false;
+    }
+    if( !(before.tag === "TextNode" || after === "TextNode")){
+        for( var i= 0, len = before.children.length; i < len; i++){
+            if( !equalHTMLJSONs( before.children[i], after.children[i])){
+                return false;
+            }
+        }
+    }
+    return true;
+};
+
 server.listen(8080);
 
-var io = io.listen(server), cache = [];  
+var io = io.listen(server), cache = [], htmlCache = null;
+
 io.on('connection', function(client){
    
     client.on('message', function(data){
+
 
         // Add Server Time
         data.st = (function( date){
@@ -124,11 +133,20 @@ io.on('connection', function(client){
             
             return hour + ":" + min + ":" + sec + "." + msec;
         })( new Date());
-        cache.push(data);
-        if( cache.length > 30){
-            cache.shift();
+
+        if( data.type === "HTM"){
+            //test mode
+            if( !equalHTMLJSONs( htmlCache, data.msg) || data.broadcast == true){
+                client.broadcast(data);
+            }
+            htmlCache = data.msg;
+        }else{
+            cache.push(data);
+            if( cache.length > 30){
+                cache.shift();
+            }
+            client.broadcast(data);
         }
-        client.broadcast(data);
     });
     
     client.on('disconnect', function(){
