@@ -9,7 +9,7 @@ server = http.createServer(function(req, res){
   switch (path){
   case "/":
   case "/console":
-      fs.readFile(__dirname + "/web/console.html", function( err, data){
+      fs.readFile(__dirname + "/../web/console.html", function( err, data){
           if( err){
               
               return send404( res);
@@ -22,7 +22,7 @@ server = http.createServer(function(req, res){
       
   case "/console.css":
   case "/console.js":
-      fs.readFile(__dirname + "/web/" + path, function( err, data){
+      fs.readFile(__dirname + "/../web/" + path, function( err, data){
           if( err){
               return send404( res);
           }
