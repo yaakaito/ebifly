@@ -1,0 +1,212 @@
+* { 
+    margin: 0;
+    padding: 0;
+}
+
+header {
+
+    width: 100%;
+}
+
+header > h1 {
+
+    width: 100%;
+    height: 20px;
+    background-color: #555;    
+    color: #fff;
+    font-size: 16px;
+    text-indent: 10px;
+
+}
+
+section {
+
+    margin: 15px auto;
+    width: 95%;
+}
+section > h2 {
+
+    display: none;
+}
+
+article {
+    display: none;
+}
+
+article#console:target {
+
+    display: block;
+}
+
+article#html:target {
+
+    display: block;
+}
+
+pre#message {
+
+    margin: 0 auto;
+    width: 100%;
+    height: 420px;
+    border: 1px solid #aaa;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    
+}
+
+pre > span.script { 
+
+    color: #44a;
+}
+pre > span.result {
+
+    color: #aaa;
+}
+
+pre > span.exception {
+
+    color: #f00;
+}
+
+textarea#script {
+    
+    display: block;
+    margin: 0 auto;
+    margin-top: -1px;
+    width: 100%;
+    height: 50px;
+    border: 1px solid #aaa;
+}
+
+section > input {
+    
+    float: right;
+    margin: 5px;
+}
+
+ul {
+
+    list-style: none;
+}
+
+table {
+    font-size: 11pt;
+    width: 980px;
+}
+
+
+table th, table td{
+
+    padding: 0;
+}
+
+.cellid{
+    width: 50px;
+}
+
+.celltype{
+
+    width: 40px;
+}
+
+.cellorg{
+
+    width: 50px;
+}
+
+.cellid, .celltype, .cellorg {
+
+    text-align:center;
+}
+.cellmsg{
+
+    width: 480px;
+    text-indent: 5px;
+}
+.cellct, .cellst, .cellmt{
+
+    width: 120px;
+    text-align:center;
+}
+
+table th {
+
+    outline: 1px #fff solid;
+}
+
+table td {
+
+    outline: 1px #999 solid;
+}
+table tr:nth-child(2n) {
+    background-color: #ddd;
+}
+table > thead th {
+    float: left;
+}
+table > thead{
+    background-color: #333;
+    color: #fff;
+}
+table > tbody {
+    display:block;
+    margin-top: -4px;
+    overflow-y: scroll;
+    width: 996px;
+    height: 420px;
+    border-collapse: collapse;
+}
+
+details {
+
+    display: block;
+    margin: 1px 10px;
+    padding-left: 12px;
+    font-family: monospace;
+    font-size: 14px;
+}
+
+details[tag] {
+    background: url("/arrow_right.png") no-repeat;
+}
+
+details[open=open] {
+
+    background: url("/arrow_bottom.png") no-repeat;
+}
+
+details[last=last] {
+
+   background: none no-repeat;
+}
+
+details > summary {
+
+    color: #881280;
+}
+
+details > summary > span.name {
+
+    color: #e6a241;
+}
+
+details > summary > span.value {
+
+    color: #1a34ca;
+}
+details > p {
+
+    margin: 1px 10px;
+}
+
+details > details,
+details > p{
+    
+    display: none;
+}
+
+details[open=open] > details,
+details[open=open] > p{
+
+    display: block;
+}
