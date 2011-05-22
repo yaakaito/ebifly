@@ -2,7 +2,7 @@
  *  ebifly
  *  iPhone/iPad Remote Debugger
  *  Logs/HTML/CSS/DOM
- */var ebi = {
+ */var EBI = {
     message : {
         type : {
             none : 99,
@@ -22,6 +22,13 @@
         },
         
         last : 0
+    },
+    html : {
+        type : {
+            none : 99,
+            textNode : 0,
+            tag : 1
+        }
     },
     createMessageObject : function(){
         return {
@@ -98,67 +105,17 @@ ebiconsole.connect = function( options){
     this.socket.send( this.message.createRequestHTML());
     
     // HTML initialize
-    var parent = document.querySelector("article#html > section > details > summary").parentNode;
-    document.querySelector("article#html > section > details > summary").addEventListener( "click", function( parent){
+    var parent = document.querySelector("article#html > section > details");
+    document.querySelector("article#html > section > details > summary").addEventListener( "click", function( target){
         return function(){
-            if( parent.getAttribute("open") === null){
-                parent.setAttribute("open", "open");
-                if( parent.getAttribute("loaded") === null){
-                    ebiconsole.openHTMLTag( parent, "0");
-                    parent.setAttribute("loaded", "loaded");
-                }
+            if( !target.getAttribute("open")){
+                target.setAttribute("open", "open");
             }else{
-                parent.removeAttribute("open");
+                target.removeAttribute("open");
             }
         }
     }( parent), false);
 
-};
-
-ebiconsole.openHTMLTag = function( targetDetails, nowpath){
-
-    var details, summary, text, children = this.selectNode(nowpath).children,
-        i = 0, len = children.length,
-       tagString, j, attrLen, path;
-    for(; i < len; i++){
-        path = nowpath + "," + i;
-        if( children[i] !== null && children[i] !== undefined){
-            details = document.createElement("details");
-            summary = document.createElement("summary");
-            if( children[i].tag !== "TextNode"){
-                tagString = "&lt;" + children[i].tag;
-                for(j = 0, attrLen = children[i].attributes.length; j < attrLen; j++){
-                    tagString += " <span class=\"name\">" + children[i].attributes[j].name + "</span>=<span class=\"value\">\"" + children[i].attributes[j].value + "\"</span>";
-                }
-                tagString += ">";
-                summary.innerHTML = tagString;
-                details.setAttribute( "tag", "tag");
-                if( children[i].children.length > 0){
-                    summary.addEventListener("click",function( details, nowpath){
-                        return function(){
-                            var smry = details.childNodes[0];
-                            details.innerHTML = "";
-                            details.appendChild(smry);
-                            if( details.getAttribute("open") === null){
-                                details.setAttribute("open", "open");
-                                if( details.getAttribute("loaded") === null){
-                                    ebiconsole.openHTMLTag( details, nowpath);
-                                }
-                            }else{
-                                details.removeAttribute("open");
-                            }
-                        };
-                    }( details, path));
-                }else{
-                    details.setAttribute("last", "last");
-                }
-            }else{
-                summary.appendChild( document.createTextNode( children[i].value));
-            }
-            details.appendChild( summary);
-            targetDetails.appendChild( details);
-        }
-    }    
 };
 
 ebiconsole.updateHTMLTag = function(){
@@ -196,16 +153,16 @@ ebiconsole.event.message = function( data){
     ebiconsole.message.last = +data.last;
 
     
-    if( data.type == ebi.message.type.log){
+    if( data.type == EBI.message.type.log){
         // insert log
         ebiconsole.insertLog( data);
-    }else if( data.type == ebi.message.type.result){
+    }else if( data.type == EBI.message.type.result){
         // insert result
         ebiconsole.insertLog( data);
-    }else if( data.type == ebi.message.type.exception){
+    }else if( data.type == EBI.message.type.exception){
         // insert exception
         ebiconsole.insertLog( data);
-    }else if( data.type == ebi.message.type.sendHTML){
+    }else if( data.type == EBI.message.type.sendHTML){
         ebiconsole.updateHTML( data);
     }
 };
@@ -259,12 +216,6 @@ ebiconsole.message.createTimeString = function( date){
     
     return hour + ":" + min + ":" + sec + "." + msec;
 }
-
-ebiconsole.updateHTML = function( data){
-
-    this.htmlModelObj = data.msg;
-}
-
 var $ = function( id){
 
     return document.getElementById( id);
@@ -276,15 +227,129 @@ var $ = function( id){
     ebiconsole.connect( { host : "localhost",
                           port : 8080});
 
-})(); ebiconsole.insertLog = function( data){
+})();ebiconsole.updateHTML = function( data){
+
+    //this.htmlModelObj = data.msg;
+    this.registerHTML( data.msg,
+                       document.querySelector("article#html > section > details")
+                     );
+};
+
+ebiconsole.registerHTML = function( ebiElement, tagElement){
+    
+    var i = 0, children = ebiElement.children, len = children.length;
+    for(; i < len; i++){
+        var details = document.createElement("details"), summary = document.createElement("summary");
+        if( children[i].type == EBI.html.type.tag){
+            var tagStr = "&lt;" + children[i].tag,
+                attr = children[i].attributes, l = 0, attrLen = attr.length;
+            for(; l < attrLen; l++){
+                tagStr += " <span class='name'>" + attr[l].name + "</span>=<span class='value'>\"" + attr[l].value + "\"</span>";
+            }
+            summary.innerHTML = tagStr + ">";
+            details.setAttribute("tag", "tag");
+            details.appendChild( summary);
+            tagElement.appendChild( details);
+            summary.addEventListener("click", function( target){
+                return function(){
+                    if( !target.getAttribute("open")){
+                        target.setAttribute("open", "open");
+                    }else{
+                        target.removeAttribute("open");
+                    }   
+                }
+            }( details));
+            this.registerHTML( children[i], details);
+        }else{
+            var details = document.createElement("details"), summary = document.createElement("summary");
+            summary.innerHTML = "<span class='textnode'>" + children[i].value + "</span>";
+            details.appendChild( summary);
+            tagElement.appendChild( details);
+        }
+    }
+};
+
+ebiconsole.toggleHTMLTag = function( target){
+    
+    if( !!target.getAttribute("open")){
+        target.setAttribute("open", "open");
+    }else{
+        target.removeAttribute("open");
+    }
+};
+/*
+    var details, summary, text, children = this.selectNode(now).children,
+        i = 0, len = children.length,
+        tagStr, j, attr, path;
+    for(; i < len; i++){
+        path = nowpath + "," + i;
+        if( children[i] !== null && children[i] !== undefined){
+            details = document.createElement("details");
+            summary = document.createElement("summary");
+            if( children[i].type != EBI.html.type.textNode){
+                tagString = "&lt;" + children[i].tag;
+                for(j = 0, attrLen = children[i].attributes.length; j < attrLen; j++){
+                    tagString += " <span class=\"name\">" + children[i].attributes[j].name + "</span>=<span class=\"value\">\"" + children[i].attributes[j].value + "\"</span>";
+                }
+                tagString += ">";
+                summary.innerHTML = tagString;
+                details.setAttribute( "tag", "tag");
+                if( children[i].children.length > 0){
+                    summary.addEventListener("click",function( details, nowpath){
+                        return function(){
+                            var smry = details.childNodes[0];
+                            details.innerHTML = "";
+                            details.appendChild(smry);
+                            if( details.getAttribute("open") === null){
+                                details.setAttribute("open", "open");
+                                if( details.getAttribute("loaded") === null){
+                                    ebiconsole.openHTMLTag( details, nowpath);
+                                }
+                            }else{
+                                details.removeAttribute("open");
+                            }
+                        };
+                    }( details, path));
+                }else{
+                    details.setAttribute("last", "last");
+                }
+            }else{
+                summary.appendChild( document.createTextNode( children[i].value));
+            }
+            details.appendChild( summary);
+            targetDetails.appendChild( details);
+        }
+    }    
+    
+};
+
+ebiconsole.selectNode = function( path){
+    
+    var ary = path.split(","), i=1, len = ary.length, now = this.htmlModelObj, n;
+    if(len==1){
+        return this.htmlModelObj;
+    }
+    
+    for(;i<len;i++){
+        n = ary[i];
+        if( now.children.length > n){
+            now = now.children[n];
+        }else{
+            return null;
+        }
+    }
+    return now;
+};
+
+*/ebiconsole.insertLog = function( data){
     var area = $("message");
     if( data.type == ebi.message.type.log){
         area.innerHTML += "[" + data.time + "] " + data.msg + "\n";
-    }else if( data.type == ebi.message.type.script){
+    }else if( data.type == EBI.message.type.script){
         area.innerHTML += "<span class='script'>>>" + data.msg + "</span>\n";
-    }else if( data.type == ebi.message.type.result){
+    }else if( data.type == EBI.message.type.result){
         area.innerHTML += "<span class='result'>>>" + data.msg + "</span>\n";
-    }else if( data.type == ebi.message.type.exception){
+    }else if( data.type == EBI.message.type.exception){
         area.innerHTML += "<span class='exception'>>>" + data.msg + "</span>\n";   
     }
     area.scrollTop = 100000000;
@@ -297,10 +362,10 @@ ebiconsole.clearLog = function(){
 ebiconsole.runScript = function(){
     
     var script = (function( script){
-        var obj = ebi.createMessageObject();
-        obj.type = ebi.message.type.script;
+        var obj = EBI.createMessageObject();
+        obj.type = EBI.message.type.script;
         obj.msg = script;
-        obj.origin = ebi.message.origin.console;
+        obj.origin = EBI.message.origin.console;
         return obj;
     })($("script").value.replace(/^(.*?)\n*$/, "$1"));
     

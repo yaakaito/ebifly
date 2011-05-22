@@ -194,6 +194,11 @@ details > summary > span.value {
 
     color: #1a34ca;
 }
+
+details > summary > span.textnode {
+    
+    color: #444444;
+}
 details > p {
 
     margin: 1px 10px;

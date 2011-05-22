@@ -54,67 +54,17 @@ ebiconsole.connect = function( options){
     this.socket.send( this.message.createRequestHTML());
     
     // HTML initialize
-    var parent = document.querySelector("article#html > section > details > summary").parentNode;
-    document.querySelector("article#html > section > details > summary").addEventListener( "click", function( parent){
+    var parent = document.querySelector("article#html > section > details");
+    document.querySelector("article#html > section > details > summary").addEventListener( "click", function( target){
         return function(){
-            if( parent.getAttribute("open") === null){
-                parent.setAttribute("open", "open");
-                if( parent.getAttribute("loaded") === null){
-                    ebiconsole.openHTMLTag( parent, "0");
-                    parent.setAttribute("loaded", "loaded");
-                }
+            if( !target.getAttribute("open")){
+                target.setAttribute("open", "open");
             }else{
-                parent.removeAttribute("open");
+                target.removeAttribute("open");
             }
         }
     }( parent), false);
 
-};
-
-ebiconsole.openHTMLTag = function( targetDetails, nowpath){
-
-    var details, summary, text, children = this.selectNode(nowpath).children,
-        i = 0, len = children.length,
-       tagString, j, attrLen, path;
-    for(; i < len; i++){
-        path = nowpath + "," + i;
-        if( children[i] !== null && children[i] !== undefined){
-            details = document.createElement("details");
-            summary = document.createElement("summary");
-            if( children[i].tag !== "TextNode"){
-                tagString = "&lt;" + children[i].tag;
-                for(j = 0, attrLen = children[i].attributes.length; j < attrLen; j++){
-                    tagString += " <span class=\"name\">" + children[i].attributes[j].name + "</span>=<span class=\"value\">\"" + children[i].attributes[j].value + "\"</span>";
-                }
-                tagString += ">";
-                summary.innerHTML = tagString;
-                details.setAttribute( "tag", "tag");
-                if( children[i].children.length > 0){
-                    summary.addEventListener("click",function( details, nowpath){
-                        return function(){
-                            var smry = details.childNodes[0];
-                            details.innerHTML = "";
-                            details.appendChild(smry);
-                            if( details.getAttribute("open") === null){
-                                details.setAttribute("open", "open");
-                                if( details.getAttribute("loaded") === null){
-                                    ebiconsole.openHTMLTag( details, nowpath);
-                                }
-                            }else{
-                                details.removeAttribute("open");
-                            }
-                        };
-                    }( details, path));
-                }else{
-                    details.setAttribute("last", "last");
-                }
-            }else{
-                summary.appendChild( document.createTextNode( children[i].value));
-            }
-            details.appendChild( summary);
-            targetDetails.appendChild( details);
-        }
-    }    
 };
 
 ebiconsole.updateHTMLTag = function(){
@@ -215,12 +165,6 @@ ebiconsole.message.createTimeString = function( date){
     
     return hour + ":" + min + ":" + sec + "." + msec;
 }
-
-ebiconsole.updateHTML = function( data){
-
-    this.htmlModelObj = data.msg;
-}
-
 var $ = function( id){
 
     return document.getElementById( id);
