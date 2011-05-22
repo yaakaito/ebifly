@@ -2,6 +2,7 @@ SRC_DIR = src
 BUILD_DIR = build
 COMPILER = vendor/compiler/compiler.jar
 SOCKET_IO = vendor/socket.io-client
+MD5 = vendor/md5
 
 COMMON_DIR = ${SRC_DIR}/common
 TEMPLATE_DIR = ${SRC_DIR}/html
@@ -14,7 +15,8 @@ CLIENT_FILES = ${COMMON_DIR}/global.js\
 							 ${CLIENT_DIR}/logger.js\
 							 ${CLIENT_DIR}/script.js\
 							 ${CLIENT_DIR}/css.js\
-							 ${CLIENT_DIR}/dom.js
+							 ${CLIENT_DIR}/dom.js\
+							 ${MD5}/md5.js
 
 CLIENT_MODULES = ${CLIENT_DIR}/intro.js\
 								${CLIENT_FILES}\
