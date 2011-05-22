@@ -42,26 +42,10 @@ ebifly.connect = function( options){
     });
 
     // HTML send
-    setInterval( function(){
-        ebifly.sendHTML();
-    }, 100);
+   // setInterval( function(){
+   //     ebifly.sendHTML();
+   // }, 100);
 
-};
-
-/* 
-   fly log
-*/
-ebifly.log = function( val){
-    var log = ebifly.message.createLog( val);
-    this.socket.send( log);
-};
-ebifly.exception = function( val){
-    var log = ebifly.message.createException( val);
-    this.socket.send( log);
-};
-ebifly.result = function( val){
-    var log = ebifly.message.createResult( val);
-    this.socket.send( log);
 };
 
 ebifly.sendHTML = function(){
@@ -87,7 +71,7 @@ ebifly.event.message = function( data){
     ebifly.message.last = +data.last;
 
     
-    if( data.type == "SCR"){
+    if( data.type == ebi.message.type.script){
         // insert log
         ebifly.executeScript( data);
     }else if( data.type == "RHT"){
@@ -97,33 +81,8 @@ ebifly.event.message = function( data){
 
 
 /*
-  executeScript
-*/
-ebifly.executeScript = function( data){
-
-    try {
-        ebifly.result( eval( data.msg));
-    }catch( e){
-        ebifly.exception( e.message);
-    } 
-}
-/*
   ebifly message format
 */
-
-ebifly.message.createLog = function( val){
-    var base = this.createBase();
-    base.type = "LOG";
-    base.msg = val;
-    return base;
-};
-
-ebifly.message.createException = function( val){
-    var base = this.createBase();
-    base.type = "EXP";
-    base.msg = val;
-    return base;
-};
 
 ebifly.message.createHTML = function( val){
 
@@ -132,14 +91,6 @@ ebifly.message.createHTML = function( val){
     base.msg = val;
     return base;
 }
-
-ebifly.message.createResult = function( val){
-    var base = this.createBase();
-    base.type = "RES";
-    base.msg = val;
-    return base;
-};
-
 
 ebifly.message.createBase = function(){
     return {
@@ -200,7 +151,7 @@ ebifly.message.elementToJSON = function( elem){
 
     return obj;
 };
-
+/*
 (function(){
     
     // start debug
@@ -209,3 +160,4 @@ ebifly.message.elementToJSON = function( elem){
 
     
 })();
+*/

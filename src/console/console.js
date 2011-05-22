@@ -140,21 +140,6 @@ ebiconsole.selectNode = function( path){
     return now;
 };
 
-
-/* 
-   console runScript
-*/
-ebiconsole.runScript = function(){
-
-    var script = this.message.createScript( $("script").value.replace(/^(.*?)\n*$/, "$1"));
-    this.socket.send( script);
-    this.insertScript( script);
-    if( $("checkClearScript").checked){
-        $("script").value = "";
-    }
-    
-}
-
 /* 
    console events
 */
@@ -167,16 +152,16 @@ ebiconsole.event.message = function( data){
     ebiconsole.message.last = +data.last;
 
     
-    if( data.type == "LOG"){
+    if( data.type == ebi.message.type.log){
         // insert log
         ebiconsole.insertLog( data);
-    }else if( data.type == "RES"){
+    }else if( data.type == ebi.message.type.result){
         // insert result
-        ebiconsole.insertResult( data);
-    }else if( data.type == "EXP"){
+        ebiconsole.insertLog( data);
+    }else if( data.type == ebi.message.type.exception){
         // insert exception
-        ebiconsole.insertException( data);
-    }else if( data.type == "HTM"){
+        ebiconsole.insertLog( data);
+    }else if( data.type == ebi.message.type.sendHTML){
         ebiconsole.updateHTML( data);
     }
 };
@@ -199,13 +184,6 @@ ebiconsole.message.createLog = function( val){
     base.msg = val;
     return base;
 };
-
-ebiconsole.message.createScript = function( script){
-    var base = this.createBase();
-    base.type = "SCR";
-    base.msg = script;
-    return base;
-}
 
 ebiconsole.message.createRequestHTML = function(){
     var base = this.createBase();
@@ -236,55 +214,6 @@ ebiconsole.message.createTimeString = function( date){
     if( msec < 100){ msec = "0" + msec; }
     
     return hour + ":" + min + ":" + sec + "." + msec;
-}
-
-/*
-  ebiconsole controllers
-*/
-ebiconsole.insertLog = function( log){
-
-    var console = $("message");
-    console.innerHTML += this.createLogTimesString( log) + " " + log.msg + "\n";
-    console.scrollTop = 1000000000;
-    
-};
-
-ebiconsole.insertScript = function( log){
-
-    var console = $("message");
-    console.innerHTML += "<span class='script'>>> " + log.msg + "</span>\n";
-    console.scrollTop = 1000000000;
-    
-};
-
-ebiconsole.insertResult = function( log){
-
-    var console = $("message");
-    console.innerHTML += "<span class='result'>>> " + log.msg + "</span>\n";
-    console.scrollTop = 1000000000;
-    
-};
-
-ebiconsole.insertException = function( log){
-
-    var console = $("message");
-    console.innerHTML += "<span class='exception'>>> "  + log.msg + "<span>\n";
-    console.scrollTop = 1000000000;
-    
-};
-
-ebiconsole.createLogTimesString = function( data){
-
-    var tlist = ["ct"], target, i = 0, len, results = [];
-    for( len = tlist.length; i < len; i++){
-        results.push( data[tlist[i]]);
-    }
-    return "[" + results.join("|") + "]";
-}
-
-ebiconsole.clearLog = function(){
-
-    $("script").innerHTML = "";
 }
 
 ebiconsole.updateHTML = function( data){

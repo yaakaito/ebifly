@@ -41,7 +41,8 @@
         if( msec < 100){ msec = "0" + msec; }
         return hour + ":" + min + ":" + sec + "." + msec;
     }
-};var ebiconsole = {
+};
+var ebiconsole = {
 
     event : {
         
@@ -183,21 +184,6 @@ ebiconsole.selectNode = function( path){
     return now;
 };
 
-
-/* 
-   console runScript
-*/
-ebiconsole.runScript = function(){
-
-    var script = this.message.createScript( $("script").value.replace(/^(.*?)\n*$/, "$1"));
-    this.socket.send( script);
-    this.insertScript( script);
-    if( $("checkClearScript").checked){
-        $("script").value = "";
-    }
-    
-}
-
 /* 
    console events
 */
@@ -215,11 +201,11 @@ ebiconsole.event.message = function( data){
         ebiconsole.insertLog( data);
     }else if( data.type == ebi.message.type.result){
         // insert result
-        ebiconsole.insertResult( data);
+        ebiconsole.insertLog( data);
     }else if( data.type == ebi.message.type.exception){
         // insert exception
-        ebiconsole.insertException( data);
-    }else if( data.type == ebi.message.type.exception){
+        ebiconsole.insertLog( data);
+    }else if( data.type == ebi.message.type.sendHTML){
         ebiconsole.updateHTML( data);
     }
 };
@@ -242,13 +228,6 @@ ebiconsole.message.createLog = function( val){
     base.msg = val;
     return base;
 };
-
-ebiconsole.message.createScript = function( script){
-    var base = this.createBase();
-    base.type = "SCR";
-    base.msg = script;
-    return base;
-}
 
 ebiconsole.message.createRequestHTML = function(){
     var base = this.createBase();
@@ -281,55 +260,6 @@ ebiconsole.message.createTimeString = function( date){
     return hour + ":" + min + ":" + sec + "." + msec;
 }
 
-/*
-  ebiconsole controllers
-*/
-ebiconsole.insertLog = function( log){
-
-    var console = $("message");
-    console.innerHTML += this.createLogTimesString( log) + " " + log.msg + "\n";
-    console.scrollTop = 1000000000;
-    
-};
-
-ebiconsole.insertScript = function( log){
-
-    var console = $("message");
-    console.innerHTML += "<span class='script'>>> " + log.msg + "</span>\n";
-    console.scrollTop = 1000000000;
-    
-};
-
-ebiconsole.insertResult = function( log){
-
-    var console = $("message");
-    console.innerHTML += "<span class='result'>>> " + log.msg + "</span>\n";
-    console.scrollTop = 1000000000;
-    
-};
-
-ebiconsole.insertException = function( log){
-
-    var console = $("message");
-    console.innerHTML += "<span class='exception'>>> "  + log.msg + "<span>\n";
-    console.scrollTop = 1000000000;
-    
-};
-
-ebiconsole.createLogTimesString = function( data){
-
-    var tlist = ["ct"], target, i = 0, len, results = [];
-    for( len = tlist.length; i < len; i++){
-        results.push( data[tlist[i]]);
-    }
-    return "[" + results.join("|") + "]";
-}
-
-ebiconsole.clearLog = function(){
-
-    $("script").innerHTML = "";
-}
-
 ebiconsole.updateHTML = function( data){
 
     this.htmlModelObj = data.msg;
@@ -346,4 +276,39 @@ var $ = function( id){
     ebiconsole.connect( { host : "localhost",
                           port : 8080});
 
-})();    /* powered by yaakaito */
+})(); ebiconsole.insertLog = function( data){
+    var area = $("message");
+    if( data.type == ebi.message.type.log){
+        area.innerHTML += "[" + data.time + "] " + data.msg + "\n";
+    }else if( data.type == ebi.message.type.script){
+        area.innerHTML += "<span class='script'>>>" + data.msg + "</span>\n";
+    }else if( data.type == ebi.message.type.result){
+        area.innerHTML += "<span class='result'>>>" + data.msg + "</span>\n";
+    }else if( data.type == ebi.message.type.exception){
+        area.innerHTML += "<span class='exception'>>>" + data.msg + "</span>\n";   
+    }
+    area.scrollTop = 10000000;
+
+};
+
+ebiconsole.clearLog = function(){
+    $("message").innerHTML = "";
+};
+ebiconsole.runScript = function(){
+    
+    var script = (function( script){
+        var obj = ebi.createMessageObject();
+        obj.type = ebi.message.type.script;
+        obj.msg = script;
+        obj.origin = ebi.message.origin.console;
+        return obj;
+    })($("script").value.replace(/^(.*?)\n*$/, "$1"));
+    
+    this.socket.send( script);
+    this.insertLog( script);
+    if( $("checkClearScript").checked){
+        $("script").value = "";
+    }
+    
+};
+  /* powered by yaakaito */

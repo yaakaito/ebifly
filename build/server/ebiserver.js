@@ -10,7 +10,7 @@ server = http.createServer(function(req, res){
   switch (path){
   case "/":
   case "/console":
-      fs.readFile(__dirname + "/../web/console.html", function( err, data){
+      fs.readFile(__dirname + "/console/console.html", function( err, data){
           if( err){
               
               return send404( res);
@@ -23,7 +23,7 @@ server = http.createServer(function(req, res){
       
   case "/console.css":
   case "/console.js":
-      fs.readFile(__dirname + "/../web/" + path, function( err, data){
+      fs.readFile(__dirname + "/console" + path, function( err, data){
           if( err){
               return send404( res);
           }
@@ -38,7 +38,7 @@ server = http.createServer(function(req, res){
       break;
       
   case "/socket.io.js":
-      fs.readFile(__dirname + "/../socket.io-client/" + path, function( err, data){
+      fs.readFile(__dirname + "/socket.io-client/" + path, function( err, data){
           if( err){
               console.log(err);
               return send404( res);
@@ -50,7 +50,7 @@ server = http.createServer(function(req, res){
       break;
   case "/arrow_right.png":
   case "/arrow_bottom.png":
-      fs.readFile(__dirname + "/web/image" + path, function( err, data){
+      fs.readFile(__dirname + "/console" + path, function( err, data){
           if( err){
               console.log(err);
               return send404( res);
@@ -61,8 +61,9 @@ server = http.createServer(function(req, res){
       });
       break;
       
-  case "/chat.html":
-      fs.readFile(__dirname + "/../client/" + path, function( err, data){
+  case "/sample.html":
+      console.log("hoge");
+      fs.readFile(__dirname + "/../client" + path, function( err, data){
           if( err){
               return send404( res);
           }

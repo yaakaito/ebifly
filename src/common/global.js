@@ -1,20 +1,22 @@
 var ebi = {
     message : {
         type : {
-            none : 99
+            none : 99,
             log : 0,
             exception: 1,
             script : 2,
             result : 3,
             requestHTML : 4,
-            sendHTML : 5,
+            sendHTML : 5
         },
+        
         origin : {
             unkown: 99,
             client : 0,
             server : 1,
             console : 2
         },
+        
         last : 0
     },
     createMessageObject : function(){
@@ -35,4 +37,4 @@ var ebi = {
         if( msec < 100){ msec = "0" + msec; }
         return hour + ":" + min + ":" + sec + "." + msec;
     }
-}
+};
