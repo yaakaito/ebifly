@@ -287,7 +287,7 @@ var $ = function( id){
     }else if( data.type == ebi.message.type.exception){
         area.innerHTML += "<span class='exception'>>>" + data.msg + "</span>\n";   
     }
-    area.scrollTop = 10000000;
+    area.scrollTop = 100000000;
 
 };
 
