@@ -2,7 +2,7 @@
  *  ebifly
  *  iPhone/iPad Remote Debugger
  *  Logs/HTML/CSS/DOM
- */var ebi = {
+ */var EBI = {
     message : {
         type : {
             none : 99,
@@ -22,6 +22,13 @@
         },
         
         last : 0
+    },
+    html : {
+        type : {
+            none : 99,
+            textNode : 0,
+            tag : 1
+        }
     },
     createMessageObject : function(){
         return {
@@ -55,7 +62,9 @@ var ebifly = {
         last : 0
     },
 
-    last : 0
+    last : 0,
+    lastHTMLHash : null,
+    lastEbiId : 0
 };
 
 ebifly.connect = function( options){
@@ -92,30 +101,16 @@ ebifly.connect = function( options){
 
 };
 
-ebifly.sendHTML = function(){
-    var html = this.message.createHTML( 
-            this.message.elementToJSON( document.querySelector("html"))
-        );
-    if( arguments.length == 1 && arguments[0] == true){
-        html.broadcast = true;
-    }
-
-    this.socket.send( html);
-
-}
 /* 
    cosole events
 */
 ebifly.event.message = function( data){
 
-    // Add mother time
-    data.ct = ebifly.message.createTimeString( new Date())
-
     // rewrite message last id
     ebifly.message.last = +data.last;
 
     
-    if( data.type == ebi.message.type.script){
+    if( data.type == EBI.message.type.script){
         // insert log
         ebifly.executeScript( data);
     }else if( data.type == "RHT"){
@@ -128,13 +123,6 @@ ebifly.event.message = function( data){
   ebifly message format
 */
 
-ebifly.message.createHTML = function( val){
-
-    var base = this.createBase();
-    base.type = "HTM";
-    base.msg = val;
-    return base;
-}
 
 ebifly.message.createBase = function(){
     return {
@@ -162,39 +150,6 @@ ebifly.message.createTimeString = function( date){
     return hour + ":" + min + ":" + sec + "." + msec;
 };
 
-ebifly.message.elementToJSON = function( elem){
-    
-    if( elem.tagName == null || elem.tagName === undefined){
-        console.log( elem.innerHTML);
-        return {
-            tag : "TextNode",
-            value : elem.nodeValue,
-            str : "TextNode" + elem.innerHTML
-        };
-
-    }
-    var obj = {
-        tag : elem.tagName.toLowerCase(),
-        attributes : [],
-        children : [],
-        str : elem.tagName.toLowerCase()
-    }, i=0, j=0, len,
-    attr = function( name, value){
-        return { name: name, value: value};
-    };
-    obj.str += elem.attributes.length;
-    for( len = elem.attributes.length; i < len; i++){
-        obj.attributes.push( attr( elem.attributes[i].name, elem.attributes[i].value));
-        obj.str = obj.str + elem.attributes[i].name + elem.attributes[i].value;
-    }
-
-    for( len = elem.childNodes.length; j < len; j++){
-        obj.children.push( this.elementToJSON( elem.childNodes[j]));
-    }
-    obj.str += len;
-
-    return obj;
-};
 /*
 (function(){
     
@@ -204,45 +159,100 @@ ebifly.message.elementToJSON = function( elem){
 
     
 })();
-*/(function(){
-    attachEbiIds = function( element, id){
-        if( element.tagName === null || element.tagName === undefined){
-            return id;
-        }
-        
-        element.setAttribute("ebifly", id++);
-        var i = 0, len = element.childNodes.length;
-        for( ; i < len; i++){
-            id = attachEbiIds( element.childNodes[i], id);
-        }
-        
+*/ebifly.attachEbiId = function( element, id){
+    if( element.tagName === null || element.tagName === undefined){
         return id;
     }
     
-    attachEbiIds( document.querySelector("html"), 0);
+    element.setAttribute("ebifly", id++);
+    var i = 0, len = element.childNodes.length;
+    for( ; i < len; i++){
+        id = this.attachEbiId( element.childNodes[i], id);
+    }
+    
+    return id;
+};
+  
+(function(){ 
+    ebifly.lastEbiId =  ebifly.attachEbiId( document.querySelector("html"), 0);
 })();
-//countup
+
+ebifly.sendHTML = function(){
+
+    var html = document.querySelector("html"),
+        hash = CybozuLabs.MD5.calc( html),
+        ebiHTML = null;
+    if( this.lastHTMLHash == null || this.lashHTMLHash !== hash){
+        this.socket.send( 
+            (function( ebiHTML){
+                var obj = EBI.createMessageObject();
+                obj.type = EBI.message.type.sendHTML;
+                obj.msg = ebiHTML;
+                obj.origin = EBI.message.origin.client;
+                return obj;
+            })( this.elementToEbiHTML( html))
+        );
+    }
+    this.lastHTMLHash = hash;
+};
+
+ebifly.elementToEbiHTML = function(element){
+    if( element.tagName === null || element.tagName === undefined){
+        return {
+            type : EBI.html.type.textNode,
+            tag : null,
+            value : element.nodeValue
+        };
+    }
+    
+    var ebiId = element.getAttribute("ebifly"),
+        obj = {
+            type : EBI.html.type.tag,
+            tag : element.tagName.toLowerCase(),
+            attributes : [],
+            children : []
+        },
+        attr = function( name, value){ return { name : name, value : value};},
+        i = 0, len;
+    if( ebiId === null || ebiId === undefined){
+        this.attachEbiId( element, this.lastEbiId);
+    }
+    obj.id = parseInt( element.getAttribute("ebifly"));
+    for( len = element.attributes.length; i < len; i++){
+        if( element.attributes[i].name !== "ebifly"){
+            obj.attributes.push( 
+                attr( element.attributes[i].name, element.attributes[i].value)
+            );
+        }
+    }
+
+    for( i = 0, len = element.childNodes.length; i < len; i++){
+        obj.children.push( this.elementToEbiHTML( element.childNodes[i]));
+    }
+
+    return obj;
+};
 ebifly.log = function( val){
-    this.socket.send( this.createLog( ebi.message.type.log, val));
+    this.socket.send( this.createLog( EBI.message.type.log, val));
 };
 
 ebifly.exception = function( val){
-    this.socket.send( this.createLog( ebi.message.type.exception, val));
+    this.socket.send( this.createLog( EBI.message.type.exception, val));
 };
 
 ebifly.result = function( val){ 
-    this.socket.send( this.createLog( ebi.message.type.result, val));
+    this.socket.send( this.createLog( EBI.message.type.result, val));
 };
 
 ebifly.createLog = function( type, val){
-    var obj = ebi.createMessageObject();
+    var obj = EBI.createMessageObject();
     obj.type = type;
     obj.msg = val;
-    obj.origin = ebi.message.origin.client;
+    obj.origin = EBI.message.origin.client;
     return obj;
 };
 ebifly.executeScript = function( data){
-    if( data.type == ebi.message.type.script){
+    if( data.type == EBI.message.type.script){
         try{
             ebifly.result(eval(data.msg))
         }catch( exp){

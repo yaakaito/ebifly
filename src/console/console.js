@@ -152,16 +152,16 @@ ebiconsole.event.message = function( data){
     ebiconsole.message.last = +data.last;
 
     
-    if( data.type == ebi.message.type.log){
+    if( data.type == EBI.message.type.log){
         // insert log
         ebiconsole.insertLog( data);
-    }else if( data.type == ebi.message.type.result){
+    }else if( data.type == EBI.message.type.result){
         // insert result
         ebiconsole.insertLog( data);
-    }else if( data.type == ebi.message.type.exception){
+    }else if( data.type == EBI.message.type.exception){
         // insert exception
         ebiconsole.insertLog( data);
-    }else if( data.type == ebi.message.type.sendHTML){
+    }else if( data.type == EBI.message.type.sendHTML){
         ebiconsole.updateHTML( data);
     }
 };

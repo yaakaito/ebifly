@@ -1,4 +1,4 @@
-var ebi = {
+var EBI = {
     message : {
         type : {
             none : 99,
@@ -18,6 +18,13 @@ var ebi = {
         },
         
         last : 0
+    },
+    html : {
+        type : {
+            none : 99,
+            textNode : 0,
+            tag : 1
+        }
     },
     createMessageObject : function(){
         return {

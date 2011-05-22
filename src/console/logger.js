@@ -2,11 +2,11 @@ ebiconsole.insertLog = function( data){
     var area = $("message");
     if( data.type == ebi.message.type.log){
         area.innerHTML += "[" + data.time + "] " + data.msg + "\n";
-    }else if( data.type == ebi.message.type.script){
+    }else if( data.type == EBI.message.type.script){
         area.innerHTML += "<span class='script'>>>" + data.msg + "</span>\n";
-    }else if( data.type == ebi.message.type.result){
+    }else if( data.type == EBI.message.type.result){
         area.innerHTML += "<span class='result'>>>" + data.msg + "</span>\n";
-    }else if( data.type == ebi.message.type.exception){
+    }else if( data.type == EBI.message.type.exception){
         area.innerHTML += "<span class='exception'>>>" + data.msg + "</span>\n";   
     }
     area.scrollTop = 100000000;

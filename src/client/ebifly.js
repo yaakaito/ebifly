@@ -11,7 +11,9 @@ var ebifly = {
         last : 0
     },
 
-    last : 0
+    last : 0,
+    lastHTMLHash : null,
+    lastEbiId : 0
 };
 
 ebifly.connect = function( options){
@@ -48,30 +50,16 @@ ebifly.connect = function( options){
 
 };
 
-ebifly.sendHTML = function(){
-    var html = this.message.createHTML( 
-            this.message.elementToJSON( document.querySelector("html"))
-        );
-    if( arguments.length == 1 && arguments[0] == true){
-        html.broadcast = true;
-    }
-
-    this.socket.send( html);
-
-}
 /* 
    cosole events
 */
 ebifly.event.message = function( data){
 
-    // Add mother time
-    data.ct = ebifly.message.createTimeString( new Date())
-
     // rewrite message last id
     ebifly.message.last = +data.last;
 
     
-    if( data.type == ebi.message.type.script){
+    if( data.type == EBI.message.type.script){
         // insert log
         ebifly.executeScript( data);
     }else if( data.type == "RHT"){
@@ -84,13 +72,6 @@ ebifly.event.message = function( data){
   ebifly message format
 */
 
-ebifly.message.createHTML = function( val){
-
-    var base = this.createBase();
-    base.type = "HTM";
-    base.msg = val;
-    return base;
-}
 
 ebifly.message.createBase = function(){
     return {
@@ -118,39 +99,6 @@ ebifly.message.createTimeString = function( date){
     return hour + ":" + min + ":" + sec + "." + msec;
 };
 
-ebifly.message.elementToJSON = function( elem){
-    
-    if( elem.tagName == null || elem.tagName === undefined){
-        console.log( elem.innerHTML);
-        return {
-            tag : "TextNode",
-            value : elem.nodeValue,
-            str : "TextNode" + elem.innerHTML
-        };
-
-    }
-    var obj = {
-        tag : elem.tagName.toLowerCase(),
-        attributes : [],
-        children : [],
-        str : elem.tagName.toLowerCase()
-    }, i=0, j=0, len,
-    attr = function( name, value){
-        return { name: name, value: value};
-    };
-    obj.str += elem.attributes.length;
-    for( len = elem.attributes.length; i < len; i++){
-        obj.attributes.push( attr( elem.attributes[i].name, elem.attributes[i].value));
-        obj.str = obj.str + elem.attributes[i].name + elem.attributes[i].value;
-    }
-
-    for( len = elem.childNodes.length; j < len; j++){
-        obj.children.push( this.elementToJSON( elem.childNodes[j]));
-    }
-    obj.str += len;
-
-    return obj;
-};
 /*
 (function(){
     
