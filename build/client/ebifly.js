@@ -47,6 +47,15 @@
         if( msec < 10){ msec = "0" + msec; }
         if( msec < 100){ msec = "0" + msec; }
         return hour + ":" + min + ":" + sec + "." + msec;
+    },
+    getChildren : function( root){
+        var ary = [], i = 0, len = root.childNodes.length;
+        for( ; i < len; i++){
+            if( root.childNodes[i].nodeType == 1){
+                ary.push(root.childNodes[i]);
+            }
+        }
+        return ary;
     }
 };
 var ebifly = {
@@ -201,6 +210,8 @@ ebifly.elementToEbiHTML = function(element){
         return {
             type : EBI.html.type.textNode,
             tag : null,
+            attributes : [],
+            children : [],
             value : element.nodeValue
         };
     }

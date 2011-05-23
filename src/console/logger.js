@@ -1,6 +1,6 @@
 ebiconsole.insertLog = function( data){
     var area = $("message");
-    if( data.type == ebi.message.type.log){
+    if( data.type == EBI.message.type.log){
         area.innerHTML += "[" + data.time + "] " + data.msg + "\n";
     }else if( data.type == EBI.message.type.script){
         area.innerHTML += "<span class='script'>>>" + data.msg + "</span>\n";

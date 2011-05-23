@@ -1,9 +1,20 @@
 ebiconsole.updateHTML = function( data){
 
     //this.htmlModelObj = data.msg;
-    this.registerHTML( data.msg,
-                       document.querySelector("article#html > section > details")
-                     );
+    if( !this.registeredHTML){
+        this.registerHTML( data.msg,
+                           document.querySelector("article#html > section > details")
+                         );
+        this.registeredHTML = true;
+    }else{
+        this.remakeHTML(
+            data.msg,
+            this.htmlModelObj,
+            document.querySelector("article#html > section > details")
+        );
+    }
+
+    this.htmlModelObj = data.msg;
 };
 
 ebiconsole.registerHTML = function( ebiElement, tagElement){
@@ -19,6 +30,7 @@ ebiconsole.registerHTML = function( ebiElement, tagElement){
             }
             summary.innerHTML = tagStr + ">";
             details.setAttribute("tag", "tag");
+            details.setAttribute("ebifly", children[i].id);
             details.appendChild( summary);
             tagElement.appendChild( details);
             summary.addEventListener("click", function( target){
@@ -30,12 +42,86 @@ ebiconsole.registerHTML = function( ebiElement, tagElement){
                     }   
                 }
             }( details));
-            this.registerHTML( children[i], details);
+            if( !( children[i].children.length > 0)){
+                details.setAttribute("last", "last");
+            }else{
+                this.registerHTML( children[i], details);
+            }
         }else{
             var details = document.createElement("details"), summary = document.createElement("summary");
             summary.innerHTML = "<span class='textnode'>" + children[i].value + "</span>";
             details.appendChild( summary);
             tagElement.appendChild( details);
+        }
+    }
+};
+
+
+// TODO:flash!!!!!
+ebiconsole.remakeHTML = function( ebiElement, oldElement, tagElement){
+    
+    var i = 0, ebiChildren = ebiElement.children,   ebiLen = ebiChildren.length,
+               oldChildren = oldElement.children,   oldLen = oldChildren.length,
+               selfUpdate = false;
+
+    console.log(tagElement);
+    console.log(tagElement.childNodes.length);
+    if( ebiLen != oldLen){
+        tagElement.innerHTML = "";
+        this.registerHTML( ebiElement, tagElement);
+        return;
+    }
+
+    for( var i = 0; i < ebiLen; i++){
+        
+        var newObj = ebiChildren[i], oldObj = oldChildren[i],
+            update = false;
+        if( newObj.id != oldObj.id){
+            tagElement.innerHTML = "";
+            this.registerHTML( ebiElement, tagElement);
+            break;
+        }else{
+            if( newObj.attributes.length != oldObj.attributes.length){
+                update = true;
+            }else{
+                var newAttr = newObj.attributes, oldAttr = oldObj.attributes;
+                for( var l = 0; l < newAttr.length; l++){
+                    if( newAttr[l].name !== oldAttr[l].name){
+                        update = true;
+                        break;
+                    }else if( newAttr[l].value !== oldAttr[l].value){          
+                        update = true;
+                        break;
+                    }
+                }
+            }
+
+            if( newObj.value !== oldObj.value){
+                update = true;
+            }
+
+            var details = EBI.getChildren( tagElement)[i+1],
+                summary = details.childNodes[0];
+
+            if(update){
+                if( newObj.type == EBI.html.type.tag){
+                    var tagStr = "&lt;" + newObj.tag,
+                    attr = newObj.attributes, l = 0, attrLen = attr.length
+                    for(; l < attrLen; l++){
+                        tagStr += " <span class='name'>" + attr[l].name + "</span>=<span class='value'>\"" + attr[l].value + "\"</span>";
+                    }
+                    summary.innerHTML = tagStr + ">";
+                    if( !( newObj.children.length > 0)) {
+                        details.setAttribute("last", "last");
+                    }
+                }else{
+                    summary.innerHTML = "<span class='textnode'>" + newObj.value + "</span>";
+                }
+            }
+
+            if(newObj.children.length > 0){
+                this.remakeHTML( newObj, oldObj, details);
+            }
         }
     }
 };
@@ -48,68 +134,3 @@ ebiconsole.toggleHTMLTag = function( target){
         target.removeAttribute("open");
     }
 };
-/*
-    var details, summary, text, children = this.selectNode(now).children,
-        i = 0, len = children.length,
-        tagStr, j, attr, path;
-    for(; i < len; i++){
-        path = nowpath + "," + i;
-        if( children[i] !== null && children[i] !== undefined){
-            details = document.createElement("details");
-            summary = document.createElement("summary");
-            if( children[i].type != EBI.html.type.textNode){
-                tagString = "&lt;" + children[i].tag;
-                for(j = 0, attrLen = children[i].attributes.length; j < attrLen; j++){
-                    tagString += " <span class=\"name\">" + children[i].attributes[j].name + "</span>=<span class=\"value\">\"" + children[i].attributes[j].value + "\"</span>";
-                }
-                tagString += ">";
-                summary.innerHTML = tagString;
-                details.setAttribute( "tag", "tag");
-                if( children[i].children.length > 0){
-                    summary.addEventListener("click",function( details, nowpath){
-                        return function(){
-                            var smry = details.childNodes[0];
-                            details.innerHTML = "";
-                            details.appendChild(smry);
-                            if( details.getAttribute("open") === null){
-                                details.setAttribute("open", "open");
-                                if( details.getAttribute("loaded") === null){
-                                    ebiconsole.openHTMLTag( details, nowpath);
-                                }
-                            }else{
-                                details.removeAttribute("open");
-                            }
-                        };
-                    }( details, path));
-                }else{
-                    details.setAttribute("last", "last");
-                }
-            }else{
-                summary.appendChild( document.createTextNode( children[i].value));
-            }
-            details.appendChild( summary);
-            targetDetails.appendChild( details);
-        }
-    }    
-    
-};
-
-ebiconsole.selectNode = function( path){
-    
-    var ary = path.split(","), i=1, len = ary.length, now = this.htmlModelObj, n;
-    if(len==1){
-        return this.htmlModelObj;
-    }
-    
-    for(;i<len;i++){
-        n = ary[i];
-        if( now.children.length > n){
-            now = now.children[n];
-        }else{
-            return null;
-        }
-    }
-    return now;
-};
-
-*/

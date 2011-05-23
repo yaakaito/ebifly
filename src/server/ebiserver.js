@@ -1,7 +1,7 @@
 var http = require("http"), url = require("url"),
     fs = require('fs'), io = require('socket.io'),
-    sys = require(process.binding('natives').util ? 'util' : 'sys'), server,
-    send404, equalHTMLJSONs;
+    sys = require(process.binding('natives').util ? 'util' : 'sys'),
+    server,send404, equalHTMLJSONs;
 
 console.log("---- Welcome to ebifly! ----");
 server = http.createServer(function(req, res){
@@ -120,6 +120,9 @@ var io = io.listen(server), cache = [], htmlCache = null;
 io.on('connection', function(client){
     client.on('message', function(data){
         // Add Server Time
+        client.broadcast(data);
+        
+/*
         data.st = (function( date){
 
 	          var hour = date.getHours(), min = date.getMinutes(), sec = date.getSeconds(), msec = date.getMilliseconds();
@@ -145,6 +148,7 @@ io.on('connection', function(client){
             }
             client.broadcast(data);
         }
+*/
     });
     
     client.on('disconnect', function(){

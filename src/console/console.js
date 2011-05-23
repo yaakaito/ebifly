@@ -9,7 +9,8 @@ var ebiconsole = {
         last : 0
     },
     last : 0,
-    htmlModelObj : null
+    htmlModelObj : null,
+    registeredHTML : false
 };
 
 ebiconsole.connect = function( options){

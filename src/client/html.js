@@ -40,6 +40,8 @@ ebifly.elementToEbiHTML = function(element){
         return {
             type : EBI.html.type.textNode,
             tag : null,
+            attributes : [],
+            children : [],
             value : element.nodeValue
         };
     }
